@@ -67,6 +67,7 @@ function startBreak() {
     if(breakSessionLength < 0) {
       sessionLength = parseInt(sessionLengthDisplay.innerText) * 60;
       updateTimerDisplay(sessionLength)
+      alarmAudio.play();
       startSession();
     }
   }, 1000)
@@ -85,8 +86,8 @@ function startSession () {
     if (sessionLength < 0) {
       breakSessionLength = parseInt(breakLengthDisplay.innerText) * 60;
       updateTimerDisplay(breakSessionLength)
+      alarmAudio.play();
       startBreak();
-      // alarmAudio.play();
     }
   }, 1000);
 }
@@ -113,6 +114,8 @@ startStopButton.addEventListener("click", () => {
 resetButton.addEventListener("click", () => {
   reset();
   stopTimer();
+  alarmAudio.pause();
+  alarmAudio.load();
 })
 
 sessionDecrementButton.addEventListener("click", () => {
