@@ -14,17 +14,17 @@ let sessionLengthDisplay = document.getElementById('session-length');
 let breakLengthDisplay = document.getElementById('break-length');
 let timeLeftDisplay = document.getElementById('time-left');
 
-// default starting times
-let breakSessionLength = 5 * 60;
-let sessionLength = 25 * 60;
-const TWENTYFIVE_MINUTES = 25 * 60;
-const FIVE_MINUTES = 5 *60;
+// default starting times in seconds
+let breakSessionLength = 300;
+let sessionLength = 1500;
+const TWENTYFIVE_MINUTES = 1500;
+const FIVE_MINUTES = 300;
 
 // timer status'
 let sessionStatus = true;
-let sessionTimer;
-let breakTimer;
-let timerStatus = "start";
+let breakStatus = false;
+let timer;
+
 const alarmAudio = document.getElementById('beep');
 
 
@@ -42,24 +42,25 @@ function updateTimerDisplay(length) {
 }
 
 function reset() {
+  clearInterval(timer);
   sessionStatus = true;
+  breakStatus = false;
   sessionLength = TWENTYFIVE_MINUTES;
   breakSessionLength = FIVE_MINUTES;
   sessionLengthDisplay.innerText = TWENTYFIVE_MINUTES / 60;
   breakLengthDisplay.innerText = FIVE_MINUTES / 60;
-  clearInterval(sessionTimer);
-  clearInterval(breakTimer);
   timerMinutes.innerText = sessionLength / 60;
   timerSeconds.innerText = "00";
   timerLabel.innerText = "Timer";
 }
 
 function startBreak() {
-  clearInterval(sessionTimer);
+  clearInterval(timer);
   sessionStatus = false;
+  breakStatus = true;
   timerLabel.innerText = "Break";
 
-  breakTimer = setInterval(() => {
+  timer = setInterval(() => {
     breakSessionLength -= 1;
     updateTimerDisplay(breakSessionLength);
 
@@ -72,11 +73,12 @@ function startBreak() {
 }
 
 function startSession () {
-  clearInterval(breakTimer);
+  clearInterval(timer);
   sessionStatus = true;
+  breakStatus = false;
   timerLabel.innerText = "Session";
 
-  sessionTimer = setInterval(() => {
+  timer = setInterval(() => {
     sessionLength -= 1;
     updateTimerDisplay(sessionLength)
 
@@ -84,11 +86,15 @@ function startSession () {
       breakSessionLength = parseInt(breakLengthDisplay.innerText) * 60;
       updateTimerDisplay(breakSessionLength)
       startBreak();
-      alarmAudio.play();
+      // alarmAudio.play();
     }
   }, 1000);
 }
 
+function stopTimer() {
+  clearInterval(timer)
+  timerStatus = "stopped";
+}
 startStopButton.addEventListener("click", () => {
   if (sessionStatus){
     startSession();
@@ -97,15 +103,16 @@ startStopButton.addEventListener("click", () => {
   }
   if (timerStatus === "start" || timerStatus === "stopped"){
     timerStatus = "counting";
-    
-  } else if (timerStatus === "counting"){
+
+  } else if (timerStatus === "counting") {
     timerStatus = "stopped";
-    clearInterval(sessionTimer)
+    clearInterval(timer)
   }
 })
 
 resetButton.addEventListener("click", () => {
   reset();
+  stopTimer();
 })
 
 sessionDecrementButton.addEventListener("click", () => {
@@ -145,4 +152,3 @@ breakIncrementButton.addEventListener("click", () => {
   breakSessionLength += 60;
   breakLengthDisplay.innerText = breakSessionLength / 60;
 })
-
